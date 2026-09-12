@@ -531,7 +531,7 @@ export default function Home() {
         </div>
         {connected && (
           <section className="library cassette-library">
-            <div className="library-head"><div><p>YOUR COLLECTION</p><h2>Keep close what you love</h2></div><button onClick={loadData}>REFRESH SHELF</button></div>
+            <div className="library-head"><div><p>SANJO'S LISTENING SHELF</p><h2>The songs you come back to</h2></div><button onClick={loadData}>↻ REFRESH</button></div>
             <div className="shelf">
               <Library title="Liked songs" tracks={liked} play={play} add={add} />
               <Library title="Your sound · top tracks" tracks={taste} play={play} add={add} />

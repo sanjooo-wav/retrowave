@@ -529,7 +529,17 @@ export default function Home() {
             )}
           </section>
         </div>
-        <footer className="sitefooter">
+        {connected && (
+          <section className="library cassette-library">
+            <div className="library-head"><div><p>YOUR COLLECTION</p><h2>Keep close what you love</h2></div><button onClick={loadData}>REFRESH SHELF</button></div>
+            <div className="shelf">
+              <Library title="Liked songs" tracks={liked} play={play} add={add} />
+              <Library title="Your sound · top tracks" tracks={taste} play={play} add={add} />
+              <div className="shelf-card"><h3>Your playlists</h3>{spotifyLists.slice(0,6).map((p) => <div className="playlist-line" key={p.id}><i style={p.image ? { backgroundImage: `url(${p.image})` } : undefined} /><span>{p.title}<small>{p.count} tracks</small></span></div>)}{!spotifyLists.length && <p className="empty">Your connected playlists will appear here.</p>}</div>
+              <div className="shelf-card"><h3>Saved cassettes</h3>{saved.slice(0,6).map((p) => <button className="saved-line" key={p.id} onClick={() => { setDrafts(all => all.map(d => d.id === activeId ? { ...d, title: p.title, tracks: p.tracks } : d)); setNotice(`${p.title} loaded onto this cassette.`) }}>{p.title}<small>{p.tracks.length} tracks · load tape</small></button>)}{!saved.length && <p className="empty">Save a cassette to keep it here.</p>}</div>
+            </div>
+          </section>
+        )}        <footer className="sitefooter">
           <span>© 2026 RETROWAVE · SANJO · SANJO</span>
           <span>CURATED IN SANJO'S TAPE ROOM</span>
           <span>LISTEN SLOWLY</span>

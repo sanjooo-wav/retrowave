@@ -48,18 +48,28 @@ header button { width: 34px; height: 34px; border: 1px solid var(--paper); borde
 .deck { padding: 19px 28px 18px; }
 .decktop { color: #aebdb0; }
 .decktop strong { color: var(--coral); font-weight: 600; }
-.cassette { position: relative; margin: 18px 0 18px; padding: 24px 32px 15px; overflow: hidden; color: var(--ink); background: linear-gradient(145deg, #dcb35f, #be9041); border: 2px solid rgba(255, 235, 177, .38); border-radius: 6px; box-shadow: inset 0 0 0 6px rgba(107, 72, 29, .14), 0 12px 28px rgba(7, 18, 17, .3); }
-.cassette::after { content: "SIDE A"; position: absolute; top: 10px; right: 16px; color: rgba(52, 40, 24, .48); font: 9px "DM Mono", monospace; letter-spacing: .12em; }
+.cassette { position: relative; margin: 18px 0 18px; padding: 24px 32px 15px; overflow: hidden; color: var(--ink); background: radial-gradient(circle at 13px 13px, #7d6131 0 2px, transparent 2.5px), radial-gradient(circle at calc(100% - 13px) 13px, #7d6131 0 2px, transparent 2.5px), radial-gradient(circle at 13px calc(100% - 13px), #7d6131 0 2px, transparent 2.5px), radial-gradient(circle at calc(100% - 13px) calc(100% - 13px), #7d6131 0 2px, transparent 2.5px), linear-gradient(145deg, #e0b961, #b9863b); border: 2px solid rgba(255, 235, 177, .38); border-radius: 7px; box-shadow: inset 0 0 0 6px rgba(107, 72, 29, .14), 0 12px 28px rgba(7, 18, 17, .3); }
+.cassette::after { content: "SIDE A  /  60 MIN"; position: absolute; top: 10px; right: 16px; color: rgba(52, 40, 24, .48); font: 9px "DM Mono", monospace; letter-spacing: .12em; }
+.cassette .label { position: relative; padding-bottom: 2px; }
+.cassette .label::before { content: ""; position: absolute; top: -4px; left: -12px; right: -12px; height: 4px; background: var(--coral); box-shadow: 0 7px 0 rgba(255, 239, 185, .32); }
+.cassette .label i { width: 8px; height: 8px; position: absolute; right: 7px; bottom: 5px; border: 2px solid rgba(52, 40, 24, .48); border-radius: 50%; background: var(--coral); }
 .cassette footer { color: rgba(41, 39, 27, .72); }
 .cassette footer small { color: inherit; }
 .cassette h2 { max-width: 72%; margin: 0 0 5px; font: 600 27px/1 "Playfair Display", serif; letter-spacing: -.04em; }
 .cassette p { margin: 0; color: rgba(41, 39, 27, .7); font-size: 12px; }
-.window { height: 76px; margin: 21px 0 9px; display: flex; align-items: center; justify-content: center; background: #173a35; border: 1px solid rgba(255, 240, 180, .35); }
-.reel { width: 74px; height: 74px; position: relative; border: 11px dotted var(--chartreuse); border-radius: 50%; background: #253834; box-shadow: inset 0 0 0 7px #374943; }
-.reel::after { content: ""; position: absolute; inset: 22px; border-radius: 50%; background: var(--chartreuse); box-shadow: inset 0 0 0 5px #4e4934; }
-.tape-track { position: absolute; left: 22%; right: 22%; height: 5px; background: var(--chartreuse); box-shadow: 0 0 0 1px rgba(40, 31, 17, .35); }
+.window { height: 76px; margin: 21px 0 9px; position: relative; overflow: hidden; background: #122e2c; border: 1px solid rgba(255, 240, 180, .35); box-shadow: inset 0 0 0 6px rgba(4, 19, 18, .2), inset 0 0 22px rgba(0, 0, 0, .3); }
+.window::after { content: ""; position: absolute; inset: 13px 12%; border: 1px solid rgba(216, 182, 83, .16); border-radius: 50%; pointer-events: none; }
+.reel { width: 66px; height: 66px; position: absolute; top: 50%; z-index: 1; margin-top: -33px; border: 10px dotted var(--chartreuse); border-radius: 50%; background: #253834; box-shadow: inset 0 0 0 7px #374943, 0 0 0 1px rgba(216, 182, 83, .28); }
+.reel:first-child { left: 12%; }
+.reel.reverse { right: 12%; }
+.reel::after { content: ""; position: absolute; inset: 19px; border-radius: 50%; background: var(--chartreuse); box-shadow: inset 0 0 0 5px #4e4934; }
+.reel i { width: 7px; height: 7px; position: absolute; z-index: 1; top: 50%; left: 50%; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: #263835; }
+.tape-track { position: absolute; top: 50%; left: 16%; right: 16%; height: 4px; background: var(--chartreuse); box-shadow: 0 0 0 1px rgba(40, 31, 17, .35); }
 .progress { display: flex; align-items: center; gap: 10px; color: #b6c2b5; font: 9px "DM Mono", monospace; }
 .progress input { flex: 1; accent-color: var(--coral); }
+.volume-control { display: flex; align-items: center; gap: 10px; margin-top: 8px; color: #9eafa3; font: 9px "DM Mono", monospace; }
+.volume-control input { flex: 1; height: 4px; accent-color: var(--chartreuse); }
+.volume-control span:last-child { width: 32px; color: var(--chartreuse); text-align: right; }
 .transport { display: flex; align-items: center; justify-content: center; gap: 15px; padding: 16px 0 10px; }
 .transport button { min-width: 28px; padding: 0; color: var(--paper); background: transparent; border: 0; font-size: 17px; }
 .transport button:hover { color: var(--chartreuse); }

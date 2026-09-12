@@ -32,7 +32,7 @@ const time = (n: number) =>
 export default function Home() {
   const [connected, setConnected] = useState(false),
     [ready, setReady] = useState(false),
-    [notice, setNotice] = useState("Sign in and link Spotify to start."),
+    [notice, setNotice] = useState("Sign in and CONNECT MUSIC to start."),
     [q, setQ] = useState(""),
     [results, setResults] = useState<Track[]>([]),
     [liked, setLiked] = useState<Track[]>([]),
@@ -130,7 +130,7 @@ export default function Home() {
           document.body.appendChild(script);
         }
       } catch {
-        setNotice("Link Spotify to see your music and play songs.");
+        setNotice("CONNECT MUSIC to see your music and play songs.");
       }
     };
     init();
@@ -275,9 +275,9 @@ export default function Home() {
       <div className="wrap">
         <header>
           <a href="/">
-            RETRO<i>wave</i>
+            RETROWAVE<i>by sanjo</i>
           </a>
-          <span>YOUR SPOTIFY LISTENING ROOM</span>
+          <span>SANJO'S CASSETTE ARCHIVE</span>
           <a href="/auth" className="account">
             ACCOUNT
           </a>
@@ -285,7 +285,7 @@ export default function Home() {
         <section className="hero">
           <div>
             <p>
-              CASSETTE DECK <b>●</b> SPOTIFY EDITION
+              CASSETTE DECK <b>●</b> PERSONAL EDITION
             </p>
             <h1>
               Keep it
@@ -306,26 +306,25 @@ export default function Home() {
         {!connected ? (
           <section className="connect-banner">
             <div>
-              <b>Link your Spotify account</b>
+              <b>Connect your music account</b>
               <span>
-                Play full tracks, see your library, and build Retrowave
-                mixtapes.
+                Play songs, build queues, and make your own cassette playlists.
               </span>
             </div>
-            <a href="/api/spotify/authorize">LINK SPOTIFY</a>
+            <a href="/api/spotify/authorize">CONNECT MUSIC</a>
           </section>
         ) : null}
         <div className="spotify-grid">
           <section className={`deck ${playing ? "rolling" : ""}`}>
             <div className="decktop">
-              <span>RETROWAVE / WEB PLAYER</span>
+              <span>SANJO'S CASSETTE DECK</span>
               <span className={ready ? "ready" : "waiting"}>
                 ● {ready ? "ON AIR" : "CONNECTING"}
               </span>
             </div>
             <div className="cassette">
               <div className="label">
-                <small>SPOTIFY · SIDE A · STEREO</small>
+                <small>SIDE A · 60 MIN · STEREO</small>
                 <h2>{current?.title || "Your tape is empty"}</h2>
                 <p>{current?.artist || "Search the crate and load a song."}</p>
                 <i />
@@ -340,7 +339,7 @@ export default function Home() {
                 </div>
               </div>
               <footer>
-                <span>RETROWAVE STUDIO</span>
+                <span>SANJO'S TAPE ROOM</span>
                 <span>{time(duration || current?.duration || 0)}</span>
               </footer>
             </div>
@@ -404,13 +403,13 @@ export default function Home() {
                   />
                 ))}
               </div>
-              <span>{ready ? "LIVE FROM SPOTIFY" : "WAITING"}</span>
+              <span>{ready ? "LIVE SIGNAL" : "WAITING"}</span>
             </div>
           </section>
           <aside className="crate">
             <div className="title">
               <div>
-                <p>SEARCH SPOTIFY</p>
+                <p>SEARCH THE CRATE</p>
                 <h2>Find a feeling</h2>
               </div>
               <b>{connected ? "ON" : "OFF"}</b>
@@ -460,7 +459,7 @@ export default function Home() {
           <section className="mix tape-builder">
             <div className="title">
               <div>
-                <p>YOUR RETROWAVE MIXTAPE</p>
+                <p>SANJO'S PLAYLIST WORKSHOP</p>
                 <h2>
                   Make it yours <b>✦</b>
                 </h2>
@@ -519,81 +518,20 @@ export default function Home() {
                 </li>
               ))}
             </ol>
+            <div className="saved-tapes">
+              <div><p>YOUR ARCHIVE</p><h3>Saved cassettes</h3></div>
+              <div className="saved-tape-list">{saved.map((p) => <button key={p.id} onClick={() => { setDrafts(all => all.map(d => d.id === activeId ? { ...d, title: p.title, tracks: p.tracks } : d)); setNotice(`${p.title} loaded onto this cassette.`) }}><b>{p.title}</b><small>{p.tracks.length} songs · load</small></button>)}{!saved.length && <span>No saved cassettes yet — save one when your tape is ready.</span>}</div>
+            </div>
             {!tape.length && (
               <p className="empty">
-                Search Spotify and use “+ TAPE” to create your own playlist.
+                SEARCH THE CRATE and use “+ TAPE” to create your own playlist.
               </p>
             )}
           </section>
         </div>
-        {connected && (
-          <section className="library">
-            <div className="library-head">
-              <div>
-                <p>FROM YOUR SPOTIFY</p>
-                <h2>Your listening shelf</h2>
-              </div>
-              <button onClick={loadData}>REFRESH</button>
-            </div>
-            <div className="shelf">
-              <Library
-                title="Liked songs"
-                tracks={liked}
-                play={play}
-                add={add}
-              />
-              <Library
-                title="Your sound · top tracks"
-                tracks={taste}
-                play={play}
-                add={add}
-              />
-              <div className="shelf-card">
-                <h3>Your Spotify playlists</h3>
-                {spotifyLists.map((p) => (
-                  <div className="playlist-line" key={p.id}>
-                    <i
-                      style={
-                        p.image
-                          ? { backgroundImage: `url(${p.image})` }
-                          : undefined
-                      }
-                    />
-                    <span>
-                      {p.title}
-                      <small>{p.count} tracks</small>
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div className="shelf-card">
-                <h3>Saved in Retrowave</h3>
-                {saved.map((p) => (
-                  <button
-                    className="saved-line"
-                    key={p.id}
-                    onClick={() =>
-                      setDrafts((all) =>
-                        all.map((d) =>
-                          d.id === activeId ? { ...d, tracks: p.tracks } : d,
-                        ),
-                      )
-                    }
-                  >
-                    {p.title}
-                    <small>{p.tracks.length} tracks · load tape</small>
-                  </button>
-                ))}
-                {!saved.length && (
-                  <p className="empty">Your saved tapes will live here.</p>
-                )}
-              </div>
-            </div>
-          </section>
-        )}
         <footer className="sitefooter">
-          <span>© 2026 RETROWAVE</span>
-          <span>POWERED BY SPOTIFY WEB PLAYBACK</span>
+          <span>© 2026 RETROWAVE · SANJO · SANJO</span>
+          <span>CURATED IN SANJO'S TAPE ROOM</span>
           <span>LISTEN SLOWLY</span>
         </footer>
       </div>

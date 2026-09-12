@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marigold — a little tape deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Space+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --moss-900:#232F1F;
+    --moss-700:#3C5936;
+    --moss-600:#4C6C45;
+    --paper:#F1E8D6;
+    --paper-dim:#E3D6BB;
+    --rust:#C1502E;
+    --rust-dark:#93381E;
+    --marigold:#E8A33D;
+    --magenta:#C23B6B;
+    --magenta-dark:#8F2C4E;
+    --teal:#4E8D82;
+    --ink:#211F17;
+    --ink-soft:#4A4536;
+    --ring:#E8A33D;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Space Grotesk',sans-serif;
+    color:var(--paper);
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -8%, var(--moss-600), transparent 60%),
+      radial-gradient(ellipse 1200px 800px at 50% 110%, #2c3f27, transparent 60%),
+      var(--moss-900);
+    min-height:100vh;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  .grain{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    opacity:.06; mix-blend-mode:overlay;
+    background-repeat:repeat; background-size:140px 140px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .page{
+    position:relative; z-index:1;
+    max-width:1180px; margin:0 auto;
+    padding:44px 22px 60px;
+  }
+
+  /* ---------- doodles ---------- */
+  .doodle{ position:absolute; opacity:.85; }
+  .doodle svg{ display:block; }
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    position:relative;
+    max-width:680px; margin:0 auto 44px;
+    background:var(--paper);
+    padding:44px 32px 30px;
+    text-align:center;
+    transform:rotate(-.6deg);
+    clip-path:polygon(0% 8%,3% 3%,6% 6%,9% 1%,13% 5%,16% 2%,19% 7%,23% 3%,26% 0%,29% 5%,33% 2%,36% 6%,40% 1%,43% 4%,47% 0%,50% 5%,54% 2%,57% 7%,61% 3%,64% 0%,68% 5%,71% 2%,75% 6%,78% 1%,82% 4%,85% 0%,89% 5%,92% 2%,96% 7%,100% 3%,100% 100%,0% 100%);
+    filter:drop-shadow(0 12px 20px rgba(0,0,0,.35));
+  }
+  .masthead .doodle-star{ top:18px; left:14px; color:var(--rust); width:42px; }
+  .masthead .doodle-sun{ top:14px; right:18px; color:var(--marigold); width:38px; }
+
+  .wordmark{
+    font-family:'Luckiest Guy', cursive;
+    font-weight:400;
+    font-size:clamp(2.6rem, 7vw, 4rem);
+    line-height:1;
+    margin:0;
+    color:var(--rust);
+    -webkit-text-stroke:1.5px var(--ink);
+    text-shadow:3px 3px 0 var(--marigold);
+    letter-spacing:1px;
+  }
+  .tagline{
+    margin:14px 0 6px;
+    color:var(--ink-soft);
+    font-style:italic;
+    font-weight:500;
+    font-size:.98rem;
+  }
+  .squiggle{ color:var(--rust); margin:0 auto; display:block; }
+
+  /* ---------- layout ---------- */
+  .studio{
+    display:grid;
+    grid-template-columns:1.3fr 1fr;
+    gap:28px;
+    align-items:start;
+  }
+  @media (max-width:880px){
+    .studio{ grid-template-columns:1fr; }
+  }
+
+  /* ---------- deck panel ---------- */
+  .deck-panel{
+    position:relative;
+    background:linear-gradient(160deg,#18160F 0%,#2A2519 55%,#18160F 100%);
+    border-radius:22px;
+    padding:34px 26px 26px;
+    box-shadow:0 20px 44px rgba(0,0,0,.5), inset 0 0 0 1px rgba(241,232,214,.06);
+    overflow:hidden;
+  }
+  .deck-panel::before{
+    content:"";
+    position:absolute; left:50%; top:-40px; transform:translateX(-50%);
+    width:340px; height:260px; border-radius:50%;
+    background:radial-gradient(circle, rgba(232,163,61,.28), transparent 70%);
+    pointer-events:none;
+  }
+  .deck-panel::after{
+    content:"";
+    position:absolute; inset:0; pointer-events:none;
+    background:repeating-linear-gradient(115deg, rgba(255,255,255,.025) 0 2px, transparent 2px 7px);
+  }
+
+  .rolling{
+    position:relative; z-index:2;
+    display:flex; align-items:center; gap:7px;
+    justify-content:flex-end;
+    font-size:.72rem; color:var(--paper-dim);
+    margin-bottom:14px;
+  }
+  .rolling__dot{
+    width:8px; height:8px; border-radius:50%;
+    background:#645E4C;
+    transition:background .2s ease;
+  }
+  .deck-panel.is-playing .rolling__dot{
+    background:var(--magenta);
+    box-shadow:0 0 9px 2px rgba(194,59,107,.75);
+    animation:pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.45;} }
+
+  .cassette{
+    position:relative; z-index:2;
+    width:min(380px, 100%);
+    margin:0 auto 22px;
+    background:linear-gradient(180deg, var(--paper) 0%, var(--paper) 62%, var(--paper-dim) 62%, var(--paper-dim) 100%);
+    border-radius:16px;
+    padding:18px 18px 20px;
+    box-shadow:0 12px 24px rgba(0,0,0,.45), inset 0 0 0 2px rgba(0,0,0,.07);
+  }
+  .screw{ position:absolute; width:8px; height:8px; border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, #d8d3c6, #8b8578 60%, #514c44);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.35);
+  }
+  .screw--tl{top:9px; left:9px;} .screw--tr{top:9px; right:9px;}
+  .screw--bl{bottom:9px; left:9px;} .screw--br{bottom:9px; right:9px;}
+
+  .cassette__label{
+    background:#FAF3E3;
+    border:1.5px dashed var(--ink-soft);
+    border-radius:6px;
+    padding:9px 13px 10px;
+    transform:rotate(-1deg);
+    margin-bottom:14px;
+    text-align:left;
+  }
+  .cassette__side{ font-weight:700; font-size:.68rem; color:var(--rust); letter-spacing:.3px; }
+  .cassette__track-title{
+    font-family:'Space Grotesk'; font-style:italic; font-weight:600;
+    font-size:1.05rem; color:var(--ink); margin:2px 0 0;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .cassette__track-artist{ font-size:.8rem; color:var(--ink-soft); margin-top:1px; }
+
+  .cassette__window{
+    position:relative;
+    background:var(--ink);
+    border-radius:10px;
+    height:96px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 22px;
+    box-shadow:inset 0 5px 12px rgba(0,0,0,.65);
+  }
+  .reel{ width:56px; height:56px; transform-origin:28px 28px; animation:spin 2.6s linear infinite; animation-play-state:paused; }
+  .deck-panel.is-playing .reel{ animation-play-state:running; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .tape-guide{ position:absolute; top:50%; left:20%; right:20%; height:2px; background:rgba(241,232,214,.35); transform:translateY(-50%); }
+  .tape-pad{ position:absolute; left:50%; top:50%; width:16px; height:11px; background:var(--paper-dim); border-radius:2px; transform:translate(-50%,-50%); }
+
+  /* ---------- progress ---------- */
+  .tape-progress{
+    position:relative; z-index:2;
+    display:flex; align-items:center; gap:10px;
+    margin:6px 0 20px;
+  }
+  .time{ font-variant-numeric:tabular-nums; font-size:.82rem; color:var(--paper-dim); min-width:32px; text-align:center; }
+  .scrubber{ flex:1; -webkit-appearance:none; appearance:none; height:6px; border-radius:4px; outline:none;
+    background:linear-gradient(to right, var(--magenta) 0%, var(--magenta) var(--progress,0%), rgba(241,232,214,.18) var(--progress,0%), rgba(241,232,214,.18) 100%);
+  }
+  .scrubber::-webkit-slider-thumb{ -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--marigold); border:2px solid var(--ink); cursor:pointer; }
+  .scrubber::-moz-range-thumb{ width:16px; height:16px; border-radius:50%; background:var(--marigold); border:2px solid var(--ink); cursor:pointer; border:none; }
+  .scrubber::-moz-range-track{ height:6px; border-radius:4px; background:rgba(241,232,214,.18); }
+  .scrubber::-moz-range-progress{ height:6px; border-radius:4px; background:var(--magenta); }
+
+  /* ---------- transport ---------- */
+  .transport{
+    position:relative; z-index:2;
+    display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap;
+  }
+  .transport__btn{
+    width:48px; height:48px; border-radius:13px;
+    background:linear-gradient(180deg,#3E3826,#221E15);
+    border:1px solid rgba(241,232,214,.14);
+    box-shadow:0 3px 0 rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06);
+    color:var(--paper); cursor:pointer;
+    display:grid; place-items:center;
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .transport__btn:active{ transform:translateY(2px); box-shadow:0 1px 0 rgba(0,0,0,.5); }
+  .transport__btn--play{
+    width:62px; height:62px; border-radius:50%;
+    background:linear-gradient(180deg, var(--rust), var(--rust-dark));
+  }
+  .icon-pause{ display:none; }
+  .deck-panel.is-playing .icon-play{ display:none; }
+  .deck-panel.is-playing .icon-pause{ display:inline-flex; }
+
+  .vu-meter{ display:flex; align-items:flex-end; gap:3px; height:30px; margin-left:6px; }
+  .vu-bar{ width:5px; height:4px; border-radius:2px; background:linear-gradient(0deg, var(--rust), var(--marigold)); transition:height .12s ease; }
+
+  .volume{ display:flex; align-items:center; gap:8px; margin-left:8px; color:var(--paper-dim); }
+  .volume svg{ opacity:.8; flex-shrink:0; }
+  .fader{ -webkit-appearance:none; appearance:none; width:78px; height:4px; border-radius:3px;
+    background:repeating-linear-gradient(to right, rgba(241,232,214,.35) 0 1px, transparent 1px 8px);
+  }
+  .fader::-webkit-slider-thumb{ -webkit-appearance:none; width:10px; height:18px; border-radius:3px; background:var(--paper); cursor:pointer; }
+  .fader::-moz-range-thumb{ width:10px; height:18px; border-radius:3px; background:var(--paper); cursor:pointer; border:none; }
+
+  .deck-note{
+    position:relative; z-index:2;
+    text-align:center; margin:20px 0 0;
+    font-size:.72rem; color:rgba(241,232,214,.5); font-style:italic;
+  }
+
+  /* ---------- mixtape column ---------- */
+  .mixtape-panel{ display:flex; flex-direction:column; gap:24px; }
+
+  .card{
+    position:relative;
+    background:var(--paper);
+    padding:34px 22px 22px;
+    filter:drop-shadow(0 10px 16px rgba(0,0,0,.3));
+  }
+  .search-card{ clip-path:polygon(0% 9%,4% 2%,8% 6%,12% 1%,16% 5%,20% 2%,24% 7%,28% 1%,32% 4%,36% 0%,40% 6%,44% 2%,48% 5%,52% 1%,56% 4%,60% 0%,64% 6%,68% 2%,72% 5%,76% 1%,80% 4%,84% 0%,88% 6%,92% 2%,96% 5%,100% 1%,100% 100%,0% 100%); transform:rotate(.4deg); }
+  .playlist-card{ clip-path:polygon(0% 6%,4% 1%,8% 5%,12% 0%,16% 4%,20% 1%,24% 6%,28% 2%,32% 5%,36% 0%,40% 4%,44% 1%,48% 6%,52% 2%,56% 5%,60% 0%,64% 4%,68% 1%,72% 6%,76% 2%,80% 5%,84% 0%,88% 4%,92% 1%,96% 6%,100% 2%,100% 100%,0% 100%); transform:rotate(-.4deg); }
+
+  .card-heading{ display:flex; align-items:center; gap:8px; font-weight:600; font-size:1.02rem; color:var(--ink); margin:0 0 12px; }
+  .card-heading .doodle-mini{ color:var(--marigold); flex-shrink:0; }
+
+  .search-input{
+    width:100%; padding:11px 14px; border-radius:9px;
+    border:1.5px solid var(--ink-soft); background:#fff;
+    font-family:'Space Grotesk'; font-size:.95rem; color:var(--ink);
+  }
+  .search-input::placeholder{ color:#8b846f; }
+
+  .results-list, .playlist-list{ list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:7px; }
+  .results-list{ max-height:300px; overflow-y:auto; padding-right:4px; }
+
+  .result-item{ display:flex; align-items:center; gap:10px; padding:7px 8px; border-radius:9px; background:rgba(0,0,0,.03); }
+  .swatch{ width:32px; height:32px; border-radius:7px; flex-shrink:0; }
+  .result-info{ flex:1; min-width:0; display:flex; flex-direction:column; }
+  .result-title{ font-weight:600; font-size:.87rem; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .result-artist{ font-size:.75rem; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .result-duration{ font-size:.72rem; color:var(--ink-soft); font-variant-numeric:tabular-nums; flex-shrink:0; }
+  .add-btn{
+    border:none; background:var(--rust); color:var(--paper);
+    width:26px; height:26px; border-radius:50%; font-size:1rem; line-height:1;
+    cursor:pointer; display:grid; place-items:center; flex-shrink:0;
+    transition:background .18s ease, transform .1s ease;
+  }
+  .add-btn:hover{ background:var(--rust-dark); }
+  .add-btn.is-added{ background:var(--teal); }
+  .add-btn.is-full{ background:var(--ink-soft); font-size:.6rem; width:auto; padding:0 8px; border-radius:10px; }
+
+  .side-tabs{ display:flex; gap:8px; margin-bottom:14px; }
+  .side-tab{
+    flex:1; padding:8px 0; border-radius:9px;
+    border:1.5px solid var(--ink-soft); background:transparent;
+    font-family:'Space Grotesk'; font-weight:600; font-size:.88rem;
+    color:var(--ink-soft); cursor:pointer; transition:background .15s ease, color .15s ease;
+  }
+  .side-tab.is-active{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+
+  .capacity-bar{ height:7px; border-radius:4px; background:rgba(0,0,0,.09); overflow:hidden; margin-bottom:6px; }
+  .capacity-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--marigold), var(--rust)); transition:width .3s ease; }
+  .capacity-label{ font-size:.72rem; color:var(--ink-soft); margin:0 0 14px; }
+
+  .playlist-item{ display:flex; align-items:center; gap:6px; border-radius:9px; transition:background .15s ease; }
+  .playlist-item:hover{ background:rgba(0,0,0,.035); }
+  .playlist-item.is-current{ background:rgba(194,59,107,.13); }
+  .playlist-select{ all:unset; display:flex; align-items:center; gap:10px; flex:1; min-width:0; cursor:pointer; padding:7px 4px 7px 8px; border-radius:9px; }
+  .playlist-index{ font-variant-numeric:tabular-nums; font-size:.78rem; color:var(--ink-soft); width:16px; flex-shrink:0; }
+  .playlist-info{ flex:1; min-width:0; display:flex; flex-direction:column; }
+  .playlist-title{ font-weight:600; font-size:.87rem; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .playlist-artist{ font-size:.74rem; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .playlist-duration{ font-size:.72rem; color:var(--ink-soft); font-variant-numeric:tabular-nums; flex-shrink:0; }
+  .playlist-remove{ border:none; background:transparent; color:var(--ink-soft); font-size:1.05rem; cursor:pointer; padding:6px 8px; border-radius:7px; flex-shrink:0; }
+  .playlist-remove:hover{ color:var(--rust-dark); background:rgba(0,0,0,.05); }
+
+  .empty-state{ text-align:center; padding:22px 8px; color:var(--ink-soft); font-size:.85rem; line-height:1.5; }
+
+  .fine-print{
+    max-width:640px; margin:38px auto 0; text-align:center;
+    font-size:.78rem; font-style:italic; color:rgba(241,232,214,.55);
+  }
+
+  button:focus-visible, input:focus-visible, .playlist-select:focus-visible{
+    outline:2px solid var(--ring); outline-offset:2px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .reel, .rolling__dot{ animation:none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="page">
+
+  <header class="masthead">
+    <span class="doodle doodle-star" aria-hidden="true">
+      <svg viewBox="0 0 64 64" width="42" height="42" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"><path d="M32 6 L39 25 L59 25 L43 37 L49 57 L32 45 L15 57 L21 37 L5 25 L25 25 Z"/></svg>
+    </span>
+    <span class="doodle doodle-sun" aria-hidden="true">
+      <svg viewBox="0 0 64 64" width="38" height="38" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+        <circle cx="32" cy="32" r="11"/>
+        <line x1="32" y1="4" x2="32" y2="14"/><line x1="32" y1="50" x2="32" y2="60"/>
+        <line x1="4" y1="32" x2="14" y2="32"/><line x1="50" y1="32" x2="60" y2="32"/>
+        <line x1="12" y1="12" x2="19" y2="19"/><line x1="45" y1="45" x2="52" y2="52"/>
+        <line x1="52" y1="12" x2="45" y2="19"/><line x1="19" y1="45" x2="12" y2="52"/>
+      </svg>
+    </span>
+    <h1 class="wordmark">Marigold</h1>
+    <p class="tagline">a little tape deck for the songs you keep going back to</p>
+    <svg class="squiggle" viewBox="0 0 200 20" width="130" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M2 14 Q20 2 38 14 T74 14 T110 14 T146 14 T182 14"/></svg>
+  </header>
+
+  <main class="studio">
+
+    <!-- ================= DECK ================= -->
+    <section class="deck-panel" id="deckPanel" aria-label="Cassette player">
+      <div class="rolling">
+        <span class="rolling__dot" id="rollingDot"></span>
+        <span id="rollingLabel">Paused</span>
+      </div>
+
+      <div class="cassette">
+        <span class="screw screw--tl"></span><span class="screw screw--tr"></span>
+        <span class="screw screw--bl"></span><span class="screw screw--br"></span>
+
+        <div class="cassette__label">
+          <div class="cassette__side" id="labelSide">—</div>
+          <div class="cassette__track-title" id="labelTitle">Nothing loaded</div>
+          <div class="cassette__track-artist" id="labelArtist">Pick a track from your mixtape below</div>
+        </div>
+
+        <div class="cassette__window">
+          <svg class="reel" viewBox="0 0 60 60"><circle cx="30" cy="30" r="27" fill="#2A271F" stroke="#4C4636" stroke-width="2"/><g stroke="#4C4636" stroke-width="3" stroke-linecap="round"><line x1="30" y1="9" x2="30" y2="19"/><line x1="30" y1="41" x2="30" y2="51"/><line x1="9" y1="30" x2="19" y2="30"/><line x1="41" y1="30" x2="51" y2="30"/><line x1="16" y1="16" x2="23" y2="23"/><line x1="37" y1="37" x2="44" y2="44"/><line x1="44" y1="16" x2="37" y2="23"/><line x1="23" y1="37" x2="16" y2="44"/></g><circle cx="30" cy="30" r="8" fill="var(--marigold)" stroke="#211F17" stroke-width="2"/></svg>
+          <span class="tape-guide"></span><span class="tape-pad"></span>
+          <svg class="reel" viewBox="0 0 60 60"><circle cx="30" cy="30" r="27" fill="#2A271F" stroke="#4C4636" stroke-width="2"/><g stroke="#4C4636" stroke-width="3" stroke-linecap="round"><line x1="30" y1="9" x2="30" y2="19"/><line x1="30" y1="41" x2="30" y2="51"/><line x1="9" y1="30" x2="19" y2="30"/><line x1="41" y1="30" x2="51" y2="30"/><line x1="16" y1="16" x2="23" y2="23"/><line x1="37" y1="37" x2="44" y2="44"/><line x1="44" y1="16" x2="37" y2="23"/><line x1="23" y1="37" x2="16" y2="44"/></g><circle cx="30" cy="30" r="8" fill="var(--rust)" stroke="#211F17" stroke-width="2"/></svg>
+        </div>
+      </div>
+
+      <div class="tape-progress">
+        <span class="time" id="timeCurrent">0:00</span>
+        <input type="range" class="scrubber" id="scrubber" min="0" max="100" value="0" aria-label="Seek within track">
+        <span class="time" id="timeTotal">0:00</span>
+      </div>
+
+      <div class="transport">
+        <button class="transport__btn" id="btnPrev" aria-label="Previous track">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6h2v12H6z" fill="currentColor"/><path d="M18 6L8 12l10 6V6z" fill="currentColor"/></svg>
+        </button>
+        <button class="transport__btn transport__btn--play" id="btnPlay" aria-label="Play or pause">
+          <svg class="icon-play" viewBox="0 0 24 24" width="20" height="20"><path d="M8 5l12 7-12 7V5z" fill="currentColor"/></svg>
+          <svg class="icon-pause" viewBox="0 0 24 24" width="20" height="20"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/></svg>
+        </button>
+        <button class="transport__btn" id="btnNext" aria-label="Next track">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M16 6h2v12h-2z" fill="currentColor"/><path d="M6 6l10 6-10 6V6z" fill="currentColor"/></svg>
+        </button>
+
+        <div class="vu-meter" aria-hidden="true">
+          <span class="vu-bar"></span><span class="vu-bar"></span><span class="vu-bar"></span>
+          <span class="vu-bar"></span><span class="vu-bar"></span><span class="vu-bar"></span>
+        </div>
+
+        <div class="volume">
+          <svg viewBox="0 0 24 24" width="16" height="16"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/></svg>
+          <input type="range" class="fader" id="volume" min="0" max="100" value="70" aria-label="Volume">
+        </div>
+      </div>
+
+      <p class="deck-note">Playback is simulated for this preview — the deck, search and mixtape all work, no audio file is wired up yet.</p>
+    </section>
+
+    <!-- ================= SEARCH + PLAYLIST ================= -->
+    <section class="mixtape-panel" aria-label="Search and playlist">
+
+      <div class="card search-card">
+        <p class="card-heading">
+          <span class="doodle-mini" aria-hidden="true"><svg viewBox="0 0 64 64" width="18" height="18" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"><path d="M32 6 L39 25 L59 25 L43 37 L49 57 L32 45 L15 57 L21 37 L5 25 L25 25 Z"/></svg></span>
+          Find something to add
+        </p>
+        <input type="search" class="search-input" id="searchInput" placeholder="Search a track or artist…" aria-label="Search the catalog">
+        <ul class="results-list" id="resultsList"></ul>
+      </div>
+
+      <div class="card playlist-card">
+        <p class="card-heading">Your mixtape</p>
+        <div class="side-tabs" role="tablist">
+          <button class="side-tab is-active" id="tabA" data-side="A" role="tab" aria-selected="true">Side A</button>
+          <button class="side-tab" id="tabB" data-side="B" role="tab" aria-selected="false">Side B</button>
+        </div>
+        <div class="capacity-bar"><div class="capacity-fill" id="capacityFill"></div></div>
+        <p class="capacity-label" id="capacityLabel">0:00 used of 22:00</p>
+        <ol class="playlist-list" id="playlistList"></ol>
+      </div>
+
+    </section>
+  </main>
+
+  <p class="fine-print">Everything above is a working front-end concept — the deck, the search, and both sides of the tape respond to real clicks, but the catalog is sample data and nothing is actually streamed.</p>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var catalog = [
+    { id:'t1',  title:'Porchlight',                    artist:'The Marigolds',   duration:192, color:'#C1502E' },
+    { id:'t2',  title:'Slow Static',                    artist:'Fern & Iris',     duration:167, color:'#E8A33D' },
+    { id:'t3',  title:'Tape Hiss Lullaby',               artist:'Sundial Youth',   duration:245, color:'#C23B6B' },
+    { id:'t4',  title:'Garden Static',                   artist:'Paper Weather',   duration:213, color:'#4E8D82' },
+    { id:'t5',  title:'Analog Heart',                    artist:'The Corner Store',duration:178, color:'#7C6A46' },
+    { id:'t6',  title:'Mixtape for a Rainy Tuesday',      artist:'Sundial Youth',   duration:221, color:'#C1502E' },
+    { id:'t7',  title:'Terracotta',                       artist:'Fern & Iris',     duration:140, color:'#E8A33D' },
+    { id:'t8',  title:'Basement Window',                  artist:'Holiday Static',  duration:195, color:'#C23B6B' },
+    { id:'t9',  title:'Marigold Fields',                  artist:'The Marigolds',   duration:252, color:'#4E8D82' },
+    { id:'t10', title:'Doorway Light',                    artist:'Paper Weather',   duration:182, color:'#7C6A46' },
+    { id:'t11', title:'Rewind, Again',                    artist:'The Corner Store',duration:159, color:'#C1502E' },
+    { id:'t12', title:'Greenhouse',                       artist:'Holiday Static',  duration:230, color:'#E8A33D' },
+    { id:'t13', title:'Chalk Star',                       artist:'Sundial Youth',   duration:175, color:'#C23B6B' },
+    { id:'t14', title:'Porch Static',                     artist:'The Marigolds',   duration:208, color:'#4E8D82' },
+    { id:'t15', title:'Sun Tape',                         artist:'Fern & Iris',     duration:189, color:'#7C6A46' },
+    { id:'t16', title:'Little Room',                      artist:'Paper Weather',   duration:164, color:'#C1502E' },
+    { id:'t17', title:'Afternoon Reel',                   artist:'Holiday Static',  duration:240, color:'#E8A33D' },
+    { id:'t18', title:'Windowsill',                       artist:'The Corner Store',duration:185, color:'#C23B6B' }
+  ];
+
+  var SIDE_CAPACITY = 22 * 60;
+  var sides = { A: [], B: [] };
+  var activeSide = 'A';
+  var currentTrack = null;   // {..track, sideOwner}
+  var isPlaying = false;
+  var currentTime = 0;
+  var vuTimer = null;
+
+  var el = {
+    deckPanel: document.getElementById('deckPanel'),
+    rollingLabel: document.getElementById('rollingLabel'),
+    labelSide: document.getElementById('labelSide'),
+    labelTitle: document.getElementById('labelTitle'),
+    labelArtist: document.getElementById('labelArtist'),
+    scrubber: document.getElementById('scrubber'),
+    timeCurrent: document.getElementById('timeCurrent'),
+    timeTotal: document.getElementById('timeTotal'),
+    btnPlay: document.getElementById('btnPlay'),
+    btnPrev: document.getElementById('btnPrev'),
+    btnNext: document.getElementById('btnNext'),
+    volume: document.getElementById('volume'),
+    searchInput: document.getElementById('searchInput'),
+    resultsList: document.getElementById('resultsList'),
+    tabA: document.getElementById('tabA'),
+    tabB: document.getElementById('tabB'),
+    capacityFill: document.getElementById('capacityFill'),
+    capacityLabel: document.getElementById('capacityLabel'),
+    playlistList: document.getElementById('playlistList'),
+    vuBars: document.querySelectorAll('.vu-bar')
+  };
+
+  function formatTime(sec){
+    sec = Math.max(0, Math.round(sec));
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  function escapeHTML(str){
+    return String(str).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
+  function sideUsed(side){
+    return sides[side].reduce(function(sum, t){ return sum + t.duration; }, 0);
+  }
+
+  /* ---------------- rendering ---------------- */
+
+  function renderResults(query){
+    var q = (query || '').trim().toLowerCase();
+    var filtered = catalog.filter(function(t){
+      return t.title.toLowerCase().indexOf(q) !== -1 || t.artist.toLowerCase().indexOf(q) !== -1;
+    });
+
+    if (filtered.length === 0){
+      el.resultsList.innerHTML = '<li class="empty-state">No songs called "' + escapeHTML(query) + '" in the crate. Try another search.</li>';
+      return;
+    }
+
+    el.resultsList.innerHTML = filtered.map(function(t){
+      var added = sides[activeSide].some(function(x){ return x.id === t.id; });
+      return '' +
+        '<li class="result-item">' +
+          '<span class="swatch" style="background:' + t.color + '"></span>' +
+          '<span class="result-info">' +
+            '<span class="result-title">' + escapeHTML(t.title) + '</span>' +
+            '<span class="result-artist">' + escapeHTML(t.artist) + '</span>' +
+          '</span>' +
+          '<span class="result-duration">' + formatTime(t.duration) + '</span>' +
+          '<button class="add-btn ' + (added ? 'is-added' : '') + '" data-id="' + t.id + '" aria-label="' + (added ? 'Remove ' : 'Add ') + escapeHTML(t.title) + (added ? ' from Side ' : ' to Side ') + activeSide + '">' + (added ? '\u2713' : '+') + '</button>' +
+        '</li>';
+    }).join('');
+  }
+
+  function renderPlaylist(){
+    var list = sides[activeSide];
+
+    if (list.length === 0){
+      el.playlistList.innerHTML = '<li class="empty-state">Side ' + activeSide + ' is empty. Search on the left and add a track to start this side.</li>';
+    } else {
+      el.playlistList.innerHTML = list.map(function(t, i){
+        var isCurrent = currentTrack && currentTrack.id === t.id && currentTrack.sideOwner === activeSide;
+        return '' +
+          '<li class="playlist-item ' + (isCurrent ? 'is-current' : '') + '">' +
+            '<button class="playlist-select" data-id="' + t.id + '">' +
+              '<span class="playlist-index">' + (i + 1) + '</span>' +
+              '<span class="playlist-info">' +
+                '<span class="playlist-title">' + escapeHTML(t.title) + '</span>' +
+                '<span class="playlist-artist">' + escapeHTML(t.artist) + '</span>' +
+              '</span>' +
+              '<span class="playlist-duration">' + formatTime(t.duration) + '</span>' +
+            '</button>' +
+            '<button class="playlist-remove" data-id="' + t.id + '" aria-label="Remove ' + escapeHTML(t.title) + '">\u00D7</button>' +
+          '</li>';
+      }).join('');
+    }
+
+    var used = sideUsed(activeSide);
+    var pct = Math.min(100, (used / SIDE_CAPACITY) * 100);
+    el.capacityFill.style.width = pct + '%';
+    el.capacityLabel.textContent = formatTime(used) + ' used of ' + formatTime(SIDE_CAPACITY) + ' \u2014 ' + formatTime(Math.max(0, SIDE_CAPACITY - used)) + ' left on this side';
+  }
+
+  function updateLabel(){
+    if (!currentTrack){
+      el.labelSide.textContent = '\u2014';
+      el.labelTitle.textContent = 'Nothing loaded';
+      el.labelArtist.textContent = 'Pick a track from your mixtape below';
+      return;
+    }
+    el.labelSide.textContent = 'Side ' + currentTrack.sideOwner;
+    el.labelTitle.textContent = currentTrack.title;
+    el.labelArtist.textContent = currentTrack.artist;
+  }
+
+  function updateProgress(){
+    if (!currentTrack){
+      el.scrubber.value = 0;
+      el.scrubber.style.setProperty('--progress', '0%');
+      el.timeCurrent.textContent = '0:00';
+      el.timeTotal.textContent = '0:00';
+      return;
+    }
+    var pct = (currentTime / currentTrack.duration) * 100;
+    el.scrubber.value = pct;
+    el.scrubber.style.setProperty('--progress', pct + '%');
+    el.timeCurrent.textContent = formatTime(currentTime);
+    el.timeTotal.textContent = formatTime(currentTrack.duration);
+  }
+
+  function setPlaying(playing){
+    isPlaying = playing;
+    el.deckPanel.classList.toggle('is-playing', isPlaying);
+    el.rollingLabel.textContent = isPlaying ? 'Rolling' : 'Paused';
+    if (isPlaying){ startVU(); } else { stopVU(); }
+  }
+
+  /* ---------------- VU meter ---------------- */
+
+  function startVU(){
+    if (vuTimer) return;
+    vuTimer = setInterval(function(){
+      var volScale = (parseInt(el.volume.value, 10) || 0) / 100;
+      el.vuBars.forEach(function(bar){
+        var h = reducedMotion ? 8 : Math.round((Math.random() * 22 + 5) * (0.35 + volScale));
+        bar.style.height = Math.max(3, h) + 'px';
+      });
+    }, 140);
+  }
+
+  function stopVU(){
+    clearInterval(vuTimer);
+    vuTimer = null;
+    el.vuBars.forEach(function(bar){ bar.style.height = '4px'; });
+  }
+
+  /* ---------------- transport logic ---------------- */
+
+  function loadTrack(track, sideOwner, autoplay){
+    currentTrack = { id: track.id, title: track.title, artist: track.artist, duration: track.duration, color: track.color, sideOwner: sideOwner };
+    currentTime = 0;
+    updateLabel();
+    updateProgress();
+    renderPlaylist();
+    setPlaying(!!autoplay);
+  }
+
+  function unloadTrack(){
+    currentTrack = null;
+    currentTime = 0;
+    updateLabel();
+    updateProgress();
+    setPlaying(false);
+  }
+
+  function togglePlay(){
+    if (!currentTrack){
+      var list = sides[activeSide];
+      if (list.length === 0){
+        el.deckPanel.animate(
+          [{ transform:'translateX(0)' }, { transform:'translateX(-4px)' }, { transform:'translateX(4px)' }, { transform:'translateX(0)' }],
+          { duration: 220 }
+        );
+        return;
+      }
+      loadTrack(list[0], activeSide, true);
+      return;
+    }
+    setPlaying(!isPlaying);
+  }
+
+  function step(direction){
+    if (!currentTrack) return;
+    var list = sides[currentTrack.sideOwner];
+    var idx = list.findIndex(function(t){ return t.id === currentTrack.id; });
+    if (idx === -1 || list.length === 0) return;
+    var nextIdx = (idx + direction + list.length) % list.length;
+    loadTrack(list[nextIdx], currentTrack.sideOwner, isPlaying);
+  }
+
+  function tick(){
+    if (!isPlaying || !currentTrack) return;
+    currentTime += 1;
+    if (currentTime >= currentTrack.duration){
+      var list = sides[currentTrack.sideOwner];
+      var idx = list.findIndex(function(t){ return t.id === currentTrack.id; });
+      if (idx > -1 && idx < list.length - 1){
+        loadTrack(list[idx + 1], currentTrack.sideOwner, true);
+      } else {
+        currentTime = 0;
+        setPlaying(false);
+        updateProgress();
+      }
+      return;
+    }
+    updateProgress();
+  }
+  setInterval(tick, 1000);
+
+  /* ---------------- events ---------------- */
+
+  el.btnPlay.addEventListener('click', togglePlay);
+  el.btnPrev.addEventListener('click', function(){ step(-1); });
+  el.btnNext.addEventListener('click', function(){ step(1); });
+
+  el.scrubber.addEventListener('input', function(){
+    if (!currentTrack) return;
+    currentTime = (parseFloat(el.scrubber.value) / 100) * currentTrack.duration;
+    updateProgress();
+  });
+
+  el.searchInput.addEventListener('input', function(){
+    renderResults(el.searchInput.value);
+  });
+
+  el.resultsList.addEventListener('click', function(e){
+    var btn = e.target.closest('.add-btn');
+    if (!btn) return;
+    var id = btn.getAttribute('data-id');
+    var track = catalog.find(function(t){ return t.id === id; });
+    if (!track) return;
+
+    var already = sides[activeSide].some(function(t){ return t.id === id; });
+
+    if (already){
+      sides[activeSide] = sides[activeSide].filter(function(t){ return t.id !== id; });
+      if (currentTrack && currentTrack.id === id && currentTrack.sideOwner === activeSide){
+        unloadTrack();
+      }
+    } else {
+      var used = sideUsed(activeSide);
+      if (used + track.duration > SIDE_CAPACITY){
+        var original = btn.textContent;
+        btn.textContent = 'Full';
+        btn.classList.add('is-full');
+        setTimeout(function(){
+          btn.textContent = original;
+          btn.classList.remove('is-full');
+        }, 900);
+        return;
+      }
+      sides[activeSide].push(track);
+    }
+
+    renderResults(el.searchInput.value);
+    renderPlaylist();
+  });
+
+  el.playlistList.addEventListener('click', function(e){
+    var removeBtn = e.target.closest('.playlist-remove');
+    if (removeBtn){
+      var rid = removeBtn.getAttribute('data-id');
+      sides[activeSide] = sides[activeSide].filter(function(t){ return t.id !== rid; });
+      if (currentTrack && currentTrack.id === rid && currentTrack.sideOwner === activeSide){
+        unloadTrack();
+      }
+      renderPlaylist();
+      renderResults(el.searchInput.value);
+      return;
+    }
+    var selectBtn = e.target.closest('.playlist-select');
+    if (selectBtn){
+      var sid = selectBtn.getAttribute('data-id');
+      var track = sides[activeSide].find(function(t){ return t.id === sid; });
+      if (track) loadTrack(track, activeSide, true);
+    }
+  });
+
+  function setActiveSide(side){
+    activeSide = side;
+    el.tabA.classList.toggle('is-active', side === 'A');
+    el.tabB.classList.toggle('is-active', side === 'B');
+    el.tabA.setAttribute('aria-selected', side === 'A');
+    el.tabB.setAttribute('aria-selected', side === 'B');
+    renderPlaylist();
+    renderResults(el.searchInput.value);
+  }
+  el.tabA.addEventListener('click', function(){ setActiveSide('A'); });
+  el.tabB.addEventListener('click', function(){ setActiveSide('B'); });
+
+  /* ---------------- init ---------------- */
+
+  renderResults('');
+  renderPlaylist();
+  updateLabel();
+  updateProgress();
+
+})();
+</script>
+</body>
+</html>

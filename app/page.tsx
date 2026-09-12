@@ -1,69 +1,13 @@
-import Image from "next/image";
-
-export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
-}
+"use client";
+import { useMemo, useState } from "react";
+type Track={id:string;title:string;artist:string;time:string;length:number;color:string};
+const songs:Track[]=[
+{id:"1",title:"Red Moon Motel",artist:"Hollow Coves",time:"3:42",length:222,color:"#d9654a"},
+{id:"2",title:"Soft Focus",artist:"June Motel",time:"4:18",length:258,color:"#c79532"},
+{id:"3",title:"Lost in the Tape",artist:"Fern Season",time:"3:27",length:207,color:"#816583"},
+{id:"4",title:"Cherry Wine",artist:"The Sundown Club",time:"3:56",length:236,color:"#c86276"},
+{id:"5",title:"Cut the Wire",artist:"Northbound",time:"2:49",length:169,color:"#557e88"},
+{id:"6",title:"Headlights",artist:"Blush Park",time:"3:31",length:211,color:"#d8793e"}];
+const I=({children}:{children:React.ReactNode})=><svg viewBox="0 0 24 24" aria-hidden="true">{children}</svg>;
+const clock=(n:number)=>`${Math.floor(n/60)}:${String(n%60).padStart(2,"0")}`;
+export default function Home(){const[side,setSide]=useState<"A"|"B">("A"),[tapes,setTapes]=useState({A:[songs[0],songs[2],songs[3]],B:[songs[5]]}),[current,setCurrent]=useState(songs[0]),[playing,setPlaying]=useState(false),[query,setQuery]=useState(""),[liked,setLiked]=useState(false);const tracks=tapes[side],used=tracks.reduce((n,s)=>n+s.length,0),results=useMemo(()=>songs.filter(s=>(s.title+s.artist).toLowerCase().includes(query.toLowerCase())),[query]);const add=(s:Track)=>setTapes(o=>({...o,[side]:o[side].some(x=>x.id===s.id)?o[side].filter(x=>x.id!==s.id):[...o[side],s]}));const move=(n:number)=>{if(!tracks.length)return;let i=Math.max(0,tracks.findIndex(x=>x.id===current.id));setCurrent(tracks[(i+n+tracks.length)%tracks.length])};return <main className="studio"><div className="grain"/><div className="wrap"><header><a>REEL<i>studio</i></a><span>MADE FOR THE SONGS THAT STAY</span><a href="/auth" className="grid size-8 place-items-center rounded-full border border-[#f1eadc] bg-[#d8694f] text-xs font-bold">M</a></header><section className="hero"><div><p>YOUR LISTENING ROOM <b>?</b> TAPE 01</p><h1>Keep it<br/><em>on repeat.</em></h1></div><aside><i/> <div><small>NOW PLAYING</small><strong>{current.title} � {current.artist}</strong></div></aside></section><div className="grid"><section className="deck"><div className="decktop"><span>REEL-TO-REEL / 1984</span><span>SIGNAL <b className={playing?"live":""}/> LIVE</span></div><div className="cassette"><div className="label"><small>SIDE {side} � 60 MIN � STEREO</small><h2>{current.title}</h2><p>{current.artist}</p><i/></div><div className="window">{[0,1].map(x=><div key={x} className={`reel ${playing?"spin":""}`}><i/></div>)}</div><footer><span>? NORMAL POSITION</span><span>? REEL STUDIO</span></footer></div><div className="progress"><span>1:14</span><input type="range" defaultValue="35" aria-label="Track progress"/><span>{current.time}</span></div><div className="transport"><button onClick={()=>move(-1)}><I><path d="M7 6v12M18 6 9 12l9 6V6Z"/></I></button><button onClick={()=>setPlaying(!playing)} className="play">{playing?<I><path d="M8 6v12M16 6v12"/></I>:<I><path d="m8 5 11 7-11 7V5Z" fill="currentColor" stroke="none"/></I>}</button><button onClick={()=>move(1)}><I><path d="M17 6v12M6 6l9 6-9 6V6Z"/></I></button><button className={liked?"liked":""} onClick={()=>setLiked(!liked)}><I><path d="M20.8 4.8a5.5 5.5 0 0 0-7.8 0L12 5.9l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21.5l8.9-8.9a5.5 5.5 0 0 0-.1-7.8Z"/></I></button></div><div className="meters">{Array.from({length:15}).map((_,i)=><i key={i} className={playing?"bounce":""} style={{height:`${8+(i*9)%18}px`}}/>)}<span>? <input type="range" aria-label="Volume" defaultValue="68"/></span></div></section><aside className="crate"><div className="title"><div><p>BROWSE THE CRATE</p><h2>Find a feeling</h2></div><b>07</b></div><label className="search"><I><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></I><input placeholder="Search a track or artist" value={query} onChange={e=>setQuery(e.target.value)}/></label>{results.slice(0,4).map(s=><div className="result" key={s.id}><i style={{background:s.color}}>{s.title[0]}</i><button onClick={()=>{setCurrent(s);setPlaying(true)}}><b>{s.title}</b><small>{s.artist}</small></button><span>{s.time}</span><button className={tracks.some(x=>x.id===s.id)?"added":""} onClick={()=>add(s)}>+</button></div>)}<p className="note">Spotify connection arrives after deployment. This is a fully interactive front-end crate.</p></aside><section className="mix"><div className="title"><div><p>YOUR MIXTAPE</p><h2>Late night drives <b>?</b></h2></div><strong>���</strong></div><div className="tabs"><button className={side==="A"?"on":""} onClick={()=>setSide("A")}>SIDE A</button><button className={side==="B"?"on":""} onClick={()=>setSide("B")}>SIDE B</button><span>{clock(used)} / 22:00</span></div><div className="capacity"><i style={{width:`${Math.min(100,used/13.2)}%`}}/></div><ol>{tracks.map((s,i)=><li className={s.id===current.id?"now":""} key={s.id}><span>{String(i+1).padStart(2,"0")}</span><button onClick={()=>{setCurrent(s);setPlaying(true)}}><b>{s.title}</b><small>{s.artist}</small></button><em>{s.time}</em></li>)}</ol><button className="fresh" onClick={()=>setTapes(o=>({...o,[side]:[]}))}>+ START A FRESH SIDE</button></section></div><footer className="sitefooter"><span>� 2026 REEL STUDIO</span><span>FRONT-END CONCEPT � NO STREAMING CONNECTED</span><span>LISTEN SLOWLY</span></footer></div></main>}

@@ -522,11 +522,6 @@ export default function Home() {
               <div><p>YOUR ARCHIVE</p><h3>Saved cassettes</h3></div>
               <div className="saved-tape-list">{saved.map((p) => <button key={p.id} onClick={() => { setDrafts(all => all.map(d => d.id === activeId ? { ...d, title: p.title, tracks: p.tracks } : d)); setNotice(`${p.title} loaded onto this cassette.`) }}><b>{p.title}</b><small>{p.tracks.length} songs · load</small></button>)}{!saved.length && <span>No saved cassettes yet — save one when your tape is ready.</span>}</div>
             </div>
-            {!tape.length && (
-              <p className="empty">
-                SEARCH THE CRATE and use “+ TAPE” to create your own playlist.
-              </p>
-            )}
           </section>
         </div>
         {connected && (

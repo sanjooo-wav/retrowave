@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "REEL Studio � Your listening room",
+  title: "Retrowave � Your listening room",
   description: "A vintage cassette-inspired music player concept.",
 };
 
